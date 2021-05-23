@@ -23,19 +23,22 @@ video.addEventListener("playing", async () => {
   document.body.append(canvas);
   const displaySize = { width: video.width, height: video.height };
   faceapi.matchDimensions(canvas, displaySize);
-
+  
   const labeledFaceDescriptors = await loadLabelledImages();
   const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6)
-
+  
   setInterval(async () => {
     const detections = await faceapi
-      .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-      .withFaceLandmarks()
-      .withFaceExpressions()
-      .withFaceDescriptors()
-      .withAgeAndGender();
+    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceExpressions()
+    .withFaceDescriptors()
+    .withAgeAndGender();
     const resizedDetections = faceapi.resizeResults(detections, displaySize);
-
+    // console.log(resizedDetections)
+    const results = resizedDetections.map(rd => faceMatcher.findBestMatch(rd.descriptor))
+  
+    // console.log(results)
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 
     faceapi.draw.drawDetections(canvas, resizedDetections);
@@ -54,21 +57,18 @@ video.addEventListener("playing", async () => {
       bottomRight
     ).draw(canvas);
 
-    const results = resizedDetections.map(rd => faceMatcher.findBestMatch(rd.descriptor))
+    const topRight = {
+      x: resizedDetections[0].detection.box.topRight.x - 45,
+      y: resizedDetections[0].detection.box.topRight.y - 20
+    };
 
-    console.log(results)
-    // const topRight = {
-    //   x: resizedDetections[0].detection.box.topRight.x - 35,
-    //   y: resizedDetections[0].detection.box.topRight.y - 20
-    // };
-
-    // results.forEach(result => {
-    //   new faceapi.draw.DrawTextField(
-    //     [result.toString()],
-    //     topRight
-    //   ).draw(canvas);
+    results.forEach(result => {
+      new faceapi.draw.DrawTextField(
+        [result.toString()],
+        topRight
+      ).draw(canvas);
     
-    // });
+    });
   }, 100);
 });
 
