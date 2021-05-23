@@ -18,12 +18,14 @@ function startVideo() {
   );
 }
 
-video.addEventListener("playing", () => {
+video.addEventListener("playing", async () => {
   const canvas = faceapi.createCanvasFromMedia(video);
   document.body.append(canvas);
-
   const displaySize = { width: video.width, height: video.height };
   faceapi.matchDimensions(canvas, displaySize);
+
+  const labeledFaceDescriptors = await loadLabelledImages();
+  const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6)
 
   setInterval(async () => {
     const detections = await faceapi
@@ -52,16 +54,21 @@ video.addEventListener("playing", () => {
       bottomRight
     ).draw(canvas);
 
-    const name = `Face`;
-    const topRight = {
-      x: resizedDetections[0].detection.box.topRight.x - 35,
-      y: resizedDetections[0].detection.box.topRight.y - 20
-    };
+    const results = resizedDetections.map(rd => faceMatcher.findBestMatch(rd.descriptor))
 
-    new faceapi.draw.DrawTextField(
-      [name],
-      topRight
-    ).draw(canvas);
+    console.log(results)
+    // const topRight = {
+    //   x: resizedDetections[0].detection.box.topRight.x - 35,
+    //   y: resizedDetections[0].detection.box.topRight.y - 20
+    // };
+
+    // results.forEach(result => {
+    //   new faceapi.draw.DrawTextField(
+    //     [result.toString()],
+    //     topRight
+    //   ).draw(canvas);
+    
+    // });
   }, 100);
 });
 
@@ -77,10 +84,18 @@ function loadLabelledImages() {
 
   return Promise.all(
     labels.map(async label => {
+      const descriptions = []
       for (let index = 1; index <= 2; index++) {
-        const image = await faceapi.fetchImages(``);
+        const image = await faceapi.fetchImage(`https://raw.githubusercontent.com/vieee/track-you/main/labelled_images/${label}/${index}.jpeg`);
+        const detections = await faceapi
+          .detectSingleFace(image)
+          .withFaceLandmarks()
+          .withFaceDescriptor();
         
+        descriptions.push(detections.descriptor)
       }
+
+      return new faceapi.LabeledFaceDescriptors(label, descriptions)
     })
   )
 }
