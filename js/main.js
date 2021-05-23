@@ -6,7 +6,8 @@ Promise.all([
   faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
   faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
   faceapi.nets.faceExpressionNet.loadFromUri("/models"),
-  faceapi.nets.ageGenderNet.loadFromUri("/models")
+  faceapi.nets.ageGenderNet.loadFromUri("/models"),
+  faceapi.nets.ssdMobilenetv1.loadFromUri("/models")
 ]).then(startVideo);
 
 function startVideo() {
@@ -29,6 +30,7 @@ video.addEventListener("playing", () => {
       .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
       .withFaceLandmarks()
       .withFaceExpressions()
+      .withFaceDescriptors()
       .withAgeAndGender();
     const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
@@ -41,13 +43,24 @@ video.addEventListener("playing", () => {
     const age = resizedDetections[0].age;
     const interpolatedAge = interpolateAgePredictions(age);
     const bottomRight = {
-      x: resizedDetections[0].detection.box.bottomRight.x - 50,
+      x: resizedDetections[0].detection.box.bottomRight.x - 55,
       y: resizedDetections[0].detection.box.bottomRight.y
     };
 
     new faceapi.draw.DrawTextField(
       [`${faceapi.utils.round(interpolatedAge, 0)} years`],
       bottomRight
+    ).draw(canvas);
+
+    const name = `Face`;
+    const topRight = {
+      x: resizedDetections[0].detection.box.topRight.x - 35,
+      y: resizedDetections[0].detection.box.topRight.y - 20
+    };
+
+    new faceapi.draw.DrawTextField(
+      [name],
+      topRight
     ).draw(canvas);
   }, 100);
 });
@@ -57,4 +70,17 @@ function interpolateAgePredictions(age) {
   const avgPredictedAge =
     predictedAges.reduce((total, a) => total + a) / predictedAges.length;
   return avgPredictedAge;
+}
+
+function loadLabelledImages() {
+  const labels = ['Deepak', 'Ghanshyam', 'Sushila'];
+
+  return Promise.all(
+    labels.map(async label => {
+      for (let index = 1; index <= 2; index++) {
+        const image = await faceapi.fetchImages(``);
+        
+      }
+    })
+  )
 }
