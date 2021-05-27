@@ -80,7 +80,7 @@ function interpolateAgePredictions(age) {
 }
 
 function loadLabelledImages() {
-  const labels = ['Deepak', 'Ghanshyam', 'Sushila', 'Krish'];
+  const labels = ['Deepak', 'Ghanshyam', 'Sushila', 'Krish', 'Sarthak'];
 
   return Promise.all(
     labels.map(async label => {
