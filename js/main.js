@@ -23,21 +23,21 @@ video.addEventListener("playing", async () => {
   document.body.append(canvas);
   const displaySize = { width: video.width, height: video.height };
   faceapi.matchDimensions(canvas, displaySize);
-  
+
   const labeledFaceDescriptors = await loadLabelledImages();
   const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6)
-  
+
   setInterval(async () => {
     const detections = await faceapi
-    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-    .withFaceLandmarks()
-    .withFaceExpressions()
-    .withFaceDescriptors()
-    .withAgeAndGender();
+      .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+      .withFaceLandmarks()
+      .withFaceExpressions()
+      .withFaceDescriptors()
+      .withAgeAndGender();
     const resizedDetections = faceapi.resizeResults(detections, displaySize);
     // console.log(resizedDetections)
     const results = resizedDetections.map(rd => faceMatcher.findBestMatch(rd.descriptor))
-  
+
     // console.log(results)
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 
@@ -67,7 +67,7 @@ video.addEventListener("playing", async () => {
         [result.toString()],
         topRight
       ).draw(canvas);
-    
+      console.log(result)
     });
   }, 100);
 });
@@ -91,7 +91,7 @@ function loadLabelledImages() {
           .detectSingleFace(image)
           .withFaceLandmarks()
           .withFaceDescriptor();
-        
+
         descriptions.push(detections.descriptor)
       }
 
