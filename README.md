@@ -9,7 +9,7 @@ Detects your
 * Age
 * Face Emotions
 * Name of person
-* Marks record in Google Cloud Database
+* Marks record in Google Sheets Database
 
 Useful for monitoring class attendance
 
