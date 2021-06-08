@@ -27,7 +27,9 @@ Useful for monitoring class attendance
 #### Predict the ages of the people in the stream
 
 
-Video
+## Implementation
+
+![Video of the Implementation](https://raw.githubusercontent.com/vieee/track-you/main/a.webp)
 
 ## Made By 
 
